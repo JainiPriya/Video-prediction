@@ -17,6 +17,11 @@ from PIL import Image
 import torch.nn as nn
 from torch.optim import Adam
 from tqdm import tqdm
+import torch.backends.cudnn as cudnn
+
+# Set cuDNN configurations
+torch.backends.cudnn.enabled = True  # Enable cuDNN
+torch.backends.cudnn.benchmark = True
 
 class SegmentationDataSet(Dataset):
 
