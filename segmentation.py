@@ -192,7 +192,7 @@ if __name__ == "__main__":
 
     train_set_path= '../data_final/dataset/train/video_'
     distinct_random_numbers = random.sample(range(1001), 200)
-    train_data_dir = [train_set_path + str(i) for i in range(1000, 2000)]
+    train_data_dir = [train_set_path + str(i) for i in range(0, 1000)]
     train_dataset = SegmentationDataSet(train_data_dir, transform=None)
     train_dataloader = DataLoader(train_dataset, batch_size=4, shuffle=True, num_workers=4)
 

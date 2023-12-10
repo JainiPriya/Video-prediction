@@ -19,20 +19,20 @@ def create_parser():
     parser.add_argument('--batch_size', default=4, type=int, help='Batch size')
     parser.add_argument('--val_batch_size', default=4, type=int, help='Batch size')
     parser.add_argument('--data_root', default='/scratch/ad6489/dlproject/frame-pred/dataset/unlabeled')#################################################
-    parser.add_argument('--dataname', default='moving_objects', choices=['moving_objects'])#################################################?
+    parser.add_argument('--dataname', default='moving_objects', choices=['moving_objects'])
     parser.add_argument('--num_workers', default=8, type=int)
 
     # model parameters
     parser.add_argument('--in_shape', default=[11,3,160,240], type=int,nargs='*')#################################################
-    parser.add_argument('--hid_S', default=64, type=int)#################################################?
-    parser.add_argument('--hid_T', default=512, type=int)#################################################?
-    parser.add_argument('--N_S', default=4, type=int)#################################################?
-    parser.add_argument('--N_T', default=8, type=int)#################################################?
+    parser.add_argument('--hid_S', default=64, type=int)
+    parser.add_argument('--hid_T', default=512, type=int)
+    parser.add_argument('--N_S', default=4, type=int)
+    parser.add_argument('--N_T', default=8, type=int)
     parser.add_argument('--groups', default=4, type=int)
 
     # Training parameters
     parser.add_argument('--epochs', default=3, type=int)#################################################
-    parser.add_argument('--log_step', default=1, type=int)#################################################
+    parser.add_argument('--log_step', default=1, type=int)
     parser.add_argument('--lr', default=0.001, type=float, help='Learning rate')#################################################
     return parser
 

@@ -26,7 +26,6 @@ class MovingObjectDataSet(data.Dataset):
 
         for video in unlabelled_dirs:
             self.videos.extend([root + '/' + video + '/'])
-        
         self.length = len(self.videos)
 
         self.is_train = is_train

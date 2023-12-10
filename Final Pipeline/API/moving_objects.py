@@ -23,9 +23,9 @@ class MovingObjectDataSet(data.Dataset):
         self.videos = []
         unlabelled_dirs = os.listdir(root)
         unlabelled_dirs = sorted(unlabelled_dirs, key=extract_num)
+
         for video in unlabelled_dirs:
             self.videos.extend([root + '/' + video + '/'])
-
         self.length = len(self.videos)
 
         self.is_train = is_train
@@ -39,7 +39,6 @@ class MovingObjectDataSet(data.Dataset):
         self.std = 1
 
     def __getitem__(self, index):
-
         video_folder = os.listdir(self.videos[index])
         video_folder = sorted(video_folder, key=extract_image_num)
         imgs = []
@@ -58,7 +57,6 @@ class MovingObjectDataSet(data.Dataset):
         past_clips = torch.stack(past_clips).permute(0, 3, 1, 2)
         #we want [11,3,160,240]
         return past_clips.contiguous().float()
-
     def __len__(self):
         return self.length
 
