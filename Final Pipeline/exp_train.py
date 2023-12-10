@@ -5,15 +5,16 @@ import torch
 import pickle
 import logging
 import numpy as np
-from model import SimVP
+from model import SimVP, Overall, A, C
 from tqdm import tqdm
 from API import *
 from utils import *
 import wandb
 
 class Exp:
-    def __init__(self, args, wandb_config):
+    def __init__(self, args, wandb_config, pretrain):
         super(Exp, self).__init__()
+        self.pretrain = pretrain
         self.args = args
         self.config = self.args.__dict__
         self.wandb_config = wandb_config
@@ -40,7 +41,10 @@ class Exp:
         # seed
         set_seed(self.args.seed)
         # log and checkpoint
-        self.path = osp.join(self.args.res_dir, self.args.ex_name)
+        if self.pretrain:
+            self.path = osp.join(self.args.res_dir_pretrain, self.args.ex_name)
+        else:
+            self.path = osp.join(self.args.res_dir_finetune, self.args.ex_name)
         check_dir(self.path)
 
         self.checkpoints_path = osp.join(self.path, 'checkpoints')
@@ -61,8 +65,17 @@ class Exp:
 
     def _build_model(self):
         args = self.args
-        self.model = SimVP(tuple(args.in_shape), args.hid_S,
-                           args.hid_T, args.N_S, args.N_T)
+        if self.pretrain:
+            self.model = SimVP(tuple(args.in_shape_pretrain), args.hid_S,
+                           args.hid_T, args.N_S, args.N_T, self.pretrain)
+        else:
+            simvp = SimVP(tuple(args.in_shape_finetune), args.hid_S,
+                           args.hid_T, args.N_S, args.N_T, self.pretrain)
+            a = A()
+            c = C()
+            checkpoint_SimVP = torch.load('./results_pretrain/Debug/checkpoint.pth')#############################################
+            simvp.load_state_dict(checkpoint_SimVP['state_dict'])
+            self.model = Overall(a, simvp, c)
         
         if torch.cuda.device_count() > 1:
             self.model = torch.nn.DataParallel(self.model) #, device_ids=None will take in all available devices
@@ -74,8 +87,10 @@ class Exp:
 
 
     def _get_data(self):
-        config = self.args.__dict__
-        self.train_loader, self.vali_loader, self.test_loader, self.data_mean, self.data_std = load_data(**config)
+        if self.pretrain:
+            self.train_loader, self.vali_loader, self.test_loader, self.data_mean, self.data_std = load_data(self.args.batch_size, self.args.val_batch_size, self.args.pretrain_root, self.args.num_workers)
+        else:
+            self.train_loader, self.vali_loader, self.test_loader, self.data_mean, self.data_std = load_data(self.args.batch_size, self.args.val_batch_size, self.args.finetune_root, self.args.num_workers)
         #self.vali_loader = self.test_loader if self.vali_loader is None else self.vali_loader
 
     def _select_optimizer(self):
@@ -95,7 +110,7 @@ class Exp:
         fw = open(os.path.join(self.checkpoints_path, name + '.pkl'), 'wb')
         pickle.dump(state, fw)
 
-    def train(self, args):
+    def train(self, args, pretrain):
         config = args.__dict__
         best_model_path = self.path + '/' + 'checkpoint.pth' # load saved model to restart from previous best model (lowest val loss) checkpoint
         
@@ -132,7 +147,7 @@ class Exp:
 
             if epoch % args.log_step == 0:
                 with torch.no_grad():
-                    vali_loss = self.vali(self.vali_loader)
+                    vali_loss = self.vali(self.vali_loader, pretrain)
                     torch.cuda.empty_cache()
                     #if epoch % (args.log_step * 100) == 0:
                     self._save(name=str(epoch))
@@ -146,7 +161,7 @@ class Exp:
         self.model.load_state_dict(torch.load(best_model_path))
         return self.model
 
-    def vali(self, vali_loader):
+    def vali(self, vali_loader, pretrain):
         self.model.eval()
         preds_lst, trues_lst, total_loss = [], [], []
         vali_pbar = tqdm(vali_loader)

@@ -103,3 +103,44 @@ class SimVP(nn.Module):
         Y = self.dec(hid, skip)
         Y = Y.reshape(B, T, C, H, W)
         return Y
+    
+class A(nn.Module):
+    def __init__(self):
+        super(A, self).__init__()
+        self.conv = nn.Conv2d(1, 3, kernel_size=1, stride=1, padding=0)
+        self.relu = nn.ReLU(inplace=True)
+
+    def forward(self, x):
+        B, T, C, H, W = x.shape
+        x = x.view(B*T, C, H, W)
+        x = self.conv(x)
+        x = self.relu(x)
+        x = x.view(B, T, C, H, W)
+        return x
+
+class C(nn.Module):
+    def __init__(self):
+        super(C, self).__init__()
+        self.conv = nn.Conv2d(3, 1, kernel_size=1, stride=1, padding=0)
+        self.relu = nn.ReLU(inplace=True)
+
+    def forward(self, x):
+        B, T, C, H, W = x.shape
+        x = x.view(B*T, C, H, W)
+        x = self.conv(x)
+        x = self.relu(x)
+        x = x.view(B, T, C, H, W)
+        return x
+    
+class Overall(nn.Module):
+    def __init__(self, a, simvp, c):
+        super(Overall, self).__init__()
+        self.A = a
+        self.B = simvp
+        self.C = c
+
+    def forward(self, x):
+        x = self.a(x)
+        x = self.simvp(x)
+        x = self.c(x)
+        return x

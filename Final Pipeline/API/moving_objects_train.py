@@ -21,7 +21,7 @@ class MovingObjectDataSet(data.Dataset):
         super(MovingObjectDataSet, self).__init__()
 
         self.videos = []
-        unlabelled_dirs = os.listdir(root)
+        unlabelled_dirs = [i for i in os.listdir(root) if i.startswith('video')]
         unlabelled_dirs = sorted(unlabelled_dirs, key=extract_num)
 
         for video in unlabelled_dirs:
@@ -65,13 +65,14 @@ class MovingObjectDataSet(data.Dataset):
     def __len__(self):
         return self.length
 
-def load_moving_object(batch_size, val_batch_size,data_root, num_workers):
+def load_moving_object(batch_size, val_batch_size, data_root, num_workers):
 
     whole_data = MovingObjectDataSet(root=data_root, is_train=True, n_frames_input=11, n_frames_output=11)
 
     train_size = int(0.9 * len(whole_data))
     val_size = int(0.09 * len(whole_data))
-    test_size = int(0.01 * len(whole_data))
+    test_size = len(whole_data) - train_size - val_size
+    # test_size = int(0.01 * len(whole_data))
     print(train_size, val_size, test_size)
     train_data, val_data, test_data = random_split(whole_data, [train_size, val_size, test_size], generator=torch.Generator().manual_seed(2021))
 
