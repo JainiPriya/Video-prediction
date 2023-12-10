@@ -10,7 +10,7 @@ Original file is located at
 import os
 import torch
 import numpy as np
-!pip install torchmetrics
+pip install torchmetrics
 import torchmetrics
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
