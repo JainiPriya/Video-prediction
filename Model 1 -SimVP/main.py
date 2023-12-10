@@ -9,7 +9,7 @@ def create_parser():
     parser = argparse.ArgumentParser()
     # Set-up parameters
     parser.add_argument('--device', default='cuda', type=str, help='Name of device to use for tensor computations (cuda/cpu)')
-    parser.add_argument('--res_dir', default='./results', type=str)
+    parser.add_argument('--res_dir', default='/scratch/ss16912/results', type=str)
     parser.add_argument('--ex_name', default='Debug', type=str)
     parser.add_argument('--use_gpu', default=True, type=bool)
     parser.add_argument('--gpu', default='0', type=str)
@@ -18,7 +18,7 @@ def create_parser():
     # dataset parameters
     parser.add_argument('--batch_size', default=4, type=int, help='Batch size')
     parser.add_argument('--val_batch_size', default=4, type=int, help='Batch size')
-    parser.add_argument('--data_root', default='/scratch/ad6489/dlproject/frame-pred/dataset/unlabeled')#################################################
+    parser.add_argument('--data_root', default='/scratch/ss16912/data_final/dataset/unlabeled')#################################################
     parser.add_argument('--dataname', default='moving_objects', choices=['moving_objects'])#################################################?
     parser.add_argument('--num_workers', default=8, type=int)
 
